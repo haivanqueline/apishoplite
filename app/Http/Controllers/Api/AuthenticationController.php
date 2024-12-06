@@ -69,7 +69,7 @@ class AuthenticationController extends Controller
             ], 200);
         }
 
-        $data['photo'] = asset('backend/assets/dist/images/profile-6.jpg');
+        $data['photo'] = 'assets/default_avatar.png';
         $data['password'] = Hash::make($data['password']);
         $data['username'] = $data['phone'];
         $data['role'] = 'customer';

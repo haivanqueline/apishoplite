@@ -205,7 +205,8 @@ Route::group( ['prefix'=>'admin/','middleware'=>'auth' ],function(){
     Route::post('product-upload', [\App\Http\Controllers\FilesController::class, 'productUpload' ])->name('upload.product');
     Route::post('upload-ckeditor', [\App\Http\Controllers\FilesController::class, 'ckeditorUpload' ])->name('upload.ckeditor');
 
-    
+    Route::resource('khoahoc', \App\Http\Controllers\KhoaHocController::class);
+    Route::resource('baihoc', \App\Http\Controllers\BaiHocController::class);
 });
 
 });
