@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('khoa_hocs', function (Blueprint $table) {
             $table->id();
             $table->string('ten_khoa_hoc');
-            $table->string('image');
-            $table->string('mota');
+            $table->text('mo_ta')->nullable();
+            $table->string('image')->nullable(); // Thêm nullable()
+            $table->decimal('gia', 10, 2)->default(0);
+            $table->string('thumbnail')->nullable();
+            $table->enum('trang_thai', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

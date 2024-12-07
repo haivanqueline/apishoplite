@@ -13,7 +13,19 @@ class BaiHoc extends Model
 
     protected $fillable = [
         'ten_bai_hoc',
-        'video',
+        'mo_ta',
         'id_khoahoc',
+        'video',
+        'noi_dung',
+        'tai_lieu',
+        'thu_tu',
+        'thoi_luong',
+        'trang_thai',
+        'luot_xem'
     ];
+
+    public function khoaHoc()
+    {
+        return $this->belongsTo(KhoaHoc::class, 'id_khoahoc');
+    }
 }

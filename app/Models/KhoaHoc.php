@@ -11,7 +11,27 @@ class KhoaHoc extends Model
 
     protected $fillable = [
         'ten_khoa_hoc',
+        'mo_ta',
         'image',
-        'mota',
+        'gia',
+        'thumbnail',
+        'trang_thai',
+        'created_by'
     ];
+
+    protected $attributes = [
+        'image' => null,
+        'gia' => 0,
+        'trang_thai' => 'active'
+    ];
+
+    public function baiHocs()
+    {
+        return $this->hasMany(BaiHoc::class, 'id_khoahoc');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

@@ -31,8 +31,18 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         Route::get('/users', [\App\Http\Controllers\Api\UserController::class, 'index']);
         Route::get('/users/search', [\App\Http\Controllers\Api\UserController::class, 'search']);
     });
-    Route::get('khoahoc', [\App\Http\Controllers\Api\ApiKhoahocController::class, 'index']);  // GET: Lấy danh sách khóa học
-    Route::get('baihoc', [\App\Http\Controllers\Api\ApiBaihocController::class, 'index']);  // GET: Lấy danh sách khóa học
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::get('/courses', [\App\Http\Controllers\Api\LearningController::class, 'getMyKhoaHoc']);
+        
+        Route::post('/upload-lesson', [\App\Http\Controllers\Api\LearningController::class, 'uploadLesson']);
+        Route::get('/lesson-content/{baiHocId}', [\App\Http\Controllers\Api\LearningController::class, 'getLessonContent']);
+        Route::post('/create-course', [\App\Http\Controllers\Api\LearningController::class, 'createKhoaHoc']);
+        Route::get('/lessons/{khoaHocId}', [\App\Http\Controllers\Api\LearningController::class, 'getLessons']);
+        Route::get('/lesson/{baiHocId}', [\App\Http\Controllers\Api\LearningController::class, 'getLessonDetail']);
+        Route::get('/learning-progress/{khoaHocId}', [\App\Http\Controllers\Api\LearningController::class, 'getLearningProgress']);
+    });
+    // Route::get('khoahoc', [\App\Http\Controllers\Api\ApiKhoahocController::class, 'index']);  // GET: Lấy danh sách khóa học
+    // Route::get('baihoc', [\App\Http\Controllers\Api\ApiBaihocController::class, 'index']);  // GET: Lấy danh sách khóa học
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'index']);
         Route::post('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'store']);

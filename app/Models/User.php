@@ -103,7 +103,11 @@ class User extends Authenticatable
     public function sendNewMessageNotification(array $data) : void {
         $this->notify(new MessageSent($data));
     }
-    
+
+    public function khoaHocs()
+    {
+        return $this->hasMany(BaiHoc::class, 'created_by');
+    }
 }   
 
 

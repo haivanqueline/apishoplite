@@ -14,8 +14,15 @@ return new class extends Migration
         Schema::create('bai_hocs', function (Blueprint $table) {
             $table->id();
             $table->string('ten_bai_hoc');
-            $table->string('video');
-            $table->string('id_khoahoc');
+            $table->text('mo_ta')->nullable();
+            $table->foreignId('id_khoahoc')->constrained('khoa_hocs');
+            $table->string('video')->nullable(); // đường dẫn đến file video
+            $table->longText('noi_dung')->nullable(); // nội dung văn bản
+            $table->json('tai_lieu')->nullable(); // tài liệu đính kèm
+            $table->integer('thu_tu')->default(0)->change();
+            $table->integer('thoi_luong')->nullable(); // thời lượng tính bằng phút
+            $table->integer('luot_xem')->default(0);
+            $table->enum('trang_thai', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }
