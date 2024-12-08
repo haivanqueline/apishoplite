@@ -9,13 +9,6 @@
             <span class="logo__text text-white text-lg ml-3"> {{$detail->short_name}} </span> 
         </a>
         <!-- END: Logo -->
-        <!-- BEGIN: Breadcrumb -->
-        <nav aria-label="breadcrumb" class="-intro-x h-[45px] mr-auto">
-            <ol class="breadcrumb breadcrumb-light">
-              <?php echo $breadcrumb; ?>
-            </ol>
-        </nav>
-        <!-- END: Breadcrumb -->
         <!-- BEGIN: Search -->
         <!-- <div class="intro-x relative mr-3 sm:mr-6">
             <div class="search hidden sm:block">

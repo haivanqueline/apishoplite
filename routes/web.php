@@ -18,6 +18,9 @@ use Illuminate\Http\Request;
 //     return view('frontend.index');
 // });
 ////front end section
+use App\Http\Controllers\LecturerController;
+
+Route::resource('lecturers', LecturerController::class);
  
 Route::post('theme_update',[\App\Http\Controllers\Frontend\IndexController::class,'themeUpdate'])->name('front.theme.update');
 
@@ -205,8 +208,7 @@ Route::group( ['prefix'=>'admin/','middleware'=>'auth' ],function(){
     Route::post('product-upload', [\App\Http\Controllers\FilesController::class, 'productUpload' ])->name('upload.product');
     Route::post('upload-ckeditor', [\App\Http\Controllers\FilesController::class, 'ckeditorUpload' ])->name('upload.ckeditor');
 
-    Route::resource('khoahoc', \App\Http\Controllers\KhoaHocController::class);
-    Route::resource('baihoc', \App\Http\Controllers\BaiHocController::class);
+    
 });
 
 });
@@ -214,3 +216,13 @@ Route::group( ['prefix'=>'admin/','middleware'=>'auth' ],function(){
 ////end//////////////
 
 Route::get('unauthorized',[\App\Http\Controllers\Controller::class,'unauthorized'])->name('unauthorized');
+Route::get('storage/{path}', function($path) {
+  $file = storage_path('app/public/' . $path);
+  if (file_exists($file)) {
+      return response()->file($file, [
+          'Content-Type' => 'image/jpeg',
+          'Access-Control-Allow-Origin' => '*'
+      ]);
+  }
+  return response()->json(['error' => 'File not found'], 404);
+})->where('path', '.*');

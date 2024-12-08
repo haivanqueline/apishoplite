@@ -7,6 +7,12 @@
                 <div class="side-menu__title"> Dashboard </div>
             </a>
         </li> 
+        <li>
+            <a href="<?php echo e(route('lecturers.index')); ?>" class="side-menu side-menu<?php echo e($active_menu == 'lecturers' ? '--active' : ''); ?>">
+                <div class="side-menu__icon"> <i data-lucide="users"></i> </div>
+                <div class="side-menu__title"> Giảng viên </div>
+            </a>
+        </li>
        <!-- Blog -->
         <li>
           <a href="javascript:;.html" class="side-menu side-menu<?php echo e(($active_menu=='tag_list'|| $active_menu=='tag_add'||$active_menu=='blog_list'|| $active_menu=='blog_add'||$active_menu=='blogcat_list'|| $active_menu=='blogcat_add' )?'--active':''); ?>">

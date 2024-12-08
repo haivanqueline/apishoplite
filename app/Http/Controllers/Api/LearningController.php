@@ -27,14 +27,42 @@ class LearningController extends Controller
     public function getMyKhoaHoc()
     {
         try {
-            // Lấy tất cả khóa học có trạng thái active
-            $khoaHocs = KhoaHoc::where('trang_thai', 'active')->get();
+            $khoaHocs = KhoaHoc::where('trang_thai', 'active')
+                ->get()
+                ->map(function ($khoaHoc) {
+                    // Debug: In ra đường dẫn gốc của thumbnail
+                    Log::info('Original thumbnail path: ' . $khoaHoc->thumbnail);
+                    
+                    $thumbnailUrl = null;
+                    if ($khoaHoc->thumbnail) {
+                        // Kiểm tra file có tồn tại không
+                        if (Storage::disk('public')->exists($khoaHoc->thumbnail)) {
+                            $thumbnailUrl = Storage::disk('public')->url($khoaHoc->thumbnail);
+                            Log::info('Generated thumbnail URL: ' . $thumbnailUrl);
+                        } else {
+                            Log::error('Thumbnail file not found: ' . $khoaHoc->thumbnail);
+                        }
+                    }
+
+                    return [
+                        'id' => $khoaHoc->id,
+                        'ten_khoa_hoc' => $khoaHoc->ten_khoa_hoc,
+                        'mo_ta' => $khoaHoc->mo_ta,
+                        'gia' => $khoaHoc->gia,
+                        'thumbnail' => $thumbnailUrl,
+                        'trang_thai' => $khoaHoc->trang_thai,
+                        'created_by' => $khoaHoc->created_by,
+                        'created_at' => $khoaHoc->created_at,
+                        'updated_at' => $khoaHoc->updated_at,
+                    ];
+                });
 
             return response()->json([
                 'status' => true,
                 'data' => $khoaHocs
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in getMyKhoaHoc: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Có lỗi xảy ra',
@@ -54,12 +82,14 @@ class LearningController extends Controller
                 ->orderBy('thu_tu', 'asc')
                 ->get()
                 ->map(function ($baiHoc) {
+                    $videoUrl = $baiHoc->video ? url('storage/' . $baiHoc->video) : null;
+                    
                     return [
                         'id' => $baiHoc->id,
                         'tenBaiHoc' => $baiHoc->ten_bai_hoc,
                         'moTa' => $baiHoc->mo_ta,
                         'idKhoahoc' => $baiHoc->id_khoahoc,
-                        'video' => $baiHoc->video ? Storage::url($baiHoc->video) : null,
+                        'video' => $videoUrl,
                         'noiDung' => $baiHoc->noi_dung,
                         'taiLieu' => $baiHoc->tai_lieu ? json_decode($baiHoc->tai_lieu) : [],
                         'thuTu' => $baiHoc->thu_tu,
@@ -124,6 +154,8 @@ class LearningController extends Controller
             $videoPath = null;
             if ($request->hasFile('video')) {
                 $videoPath = $request->file('video')->store('lessons/videos', 'public');
+                // Tạo URL đầy đủ cho video
+                $videoUrl = url('storage/' . $videoPath);
             }
 
             // Upload tài liệu đính kèm nếu có
@@ -151,11 +183,15 @@ class LearningController extends Controller
                 'trang_thai' => 'active'
             ]);
 
+            // Trả về response với URL đầy đủ
             return response()->json([
                 'status' => true,
                 'message' => 'Tạo bài học thành công',
-                'data' => $baiHoc
+                'data' => array_merge($baiHoc->toArray(), [
+                    'video_url' => $videoPath ? url('storage/' . $videoPath) : null
+                ])
             ], 201);
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -314,10 +350,13 @@ class LearningController extends Controller
                 'created_by' => Auth::id()
             ]);
 
+            // Trả về response với URL đầy đủ cho thumbnail
             return response()->json([
                 'status' => true,
                 'message' => 'Tạo khóa học thành công',
-                'data' => $khoaHoc
+                'data' => array_merge($khoaHoc->toArray(), [
+                    'thumbnail' => $thumbnailPath ? url('storage/' . $thumbnailPath) : null
+                ])
             ], 201);
         } catch (\Exception $e) {
             return response()->json([

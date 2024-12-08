@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('ten_khoa_hoc');
             $table->text('mo_ta')->nullable();
-            $table->string('image')->nullable(); // Thêm nullable()
+            $table->string('image')->nullable();
             $table->decimal('gia', 10, 2)->default(0);
             $table->string('thumbnail')->nullable();
             $table->enum('trang_thai', ['active', 'inactive'])->default('active');
+            $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();
         });
     }

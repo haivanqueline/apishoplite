@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('video')->nullable(); // đường dẫn đến file video
             $table->longText('noi_dung')->nullable(); // nội dung văn bản
             $table->json('tai_lieu')->nullable(); // tài liệu đính kèm
-            $table->integer('thu_tu')->default(0)->change();
+            $table->integer('thu_tu')->default(0);
             $table->integer('thoi_luong')->nullable(); // thời lượng tính bằng phút
             $table->integer('luot_xem')->default(0);
             $table->enum('trang_thai', ['active', 'inactive'])->default('active');

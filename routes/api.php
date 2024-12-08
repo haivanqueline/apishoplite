@@ -49,4 +49,14 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         Route::post('/credit-cards/{id}/set-default', [\App\Http\Controllers\Api\CreditCardController::class, 'setDefault']);
         Route::delete('/credit-cards/{id}', [\App\Http\Controllers\Api\CreditCardController::class, 'destroy']);
     });
+    
+  });
+  use App\Http\Controllers\Api\ApiLecturerController;
+
+  Route::prefix('v1')->group(function () {
+      // Route lấy tất cả giảng viên
+      Route::get('lecturers', [APILecturerController::class, 'index']);
+      
+      // Route lấy giảng viên theo ID
+      Route::get('lecturers/{id}', [APILecturerController::class, 'show']);
   });
