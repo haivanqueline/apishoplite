@@ -33,13 +33,16 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
     });
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/courses', [\App\Http\Controllers\Api\LearningController::class, 'getMyKhoaHoc']);
-        
         Route::post('/upload-lesson', [\App\Http\Controllers\Api\LearningController::class, 'uploadLesson']);
         Route::get('/lesson-content/{baiHocId}', [\App\Http\Controllers\Api\LearningController::class, 'getLessonContent']);
         Route::post('/create-course', [\App\Http\Controllers\Api\LearningController::class, 'createKhoaHoc']);
         Route::get('/lessons/{khoaHocId}', [\App\Http\Controllers\Api\LearningController::class, 'getLessons']);
         Route::get('/lesson/{baiHocId}', [\App\Http\Controllers\Api\LearningController::class, 'getLessonDetail']);
         Route::get('/learning-progress/{khoaHocId}', [\App\Http\Controllers\Api\LearningController::class, 'getLearningProgress']);
+        Route::delete('/delete-course/{khoaHocId}', [\App\Http\Controllers\Api\LearningController::class, 'deleteKhoaHoc']);
+        Route::delete('/delete-lesson/{baiHocId}', [\App\Http\Controllers\Api\LearningController::class, 'deleteBaiHoc']);
+        Route::post('/save-course/{khoaHocId}', [\App\Http\Controllers\Api\LearningController::class, 'saveKhoaHoc']);
+        Route::get('/saved-courses', [\App\Http\Controllers\Api\LearningController::class, 'getSavedKhoaHoc']);
     });
     // Route::get('khoahoc', [\App\Http\Controllers\Api\ApiKhoahocController::class, 'index']);  // GET: Lấy danh sách khóa học
     // Route::get('baihoc', [\App\Http\Controllers\Api\ApiBaihocController::class, 'index']);  // GET: Lấy danh sách khóa học

@@ -37,7 +37,7 @@ class LearningController extends Controller
                     if ($khoaHoc->thumbnail) {
                         // Kiểm tra file có tồn tại không
                         if (Storage::disk('public')->exists($khoaHoc->thumbnail)) {
-                            $thumbnailUrl = Storage::disk('public')->url($khoaHoc->thumbnail);
+                            $thumbnailUrl = asset('storage/' . $khoaHoc->thumbnail);
                             Log::info('Generated thumbnail URL: ' . $thumbnailUrl);
                         } else {
                             Log::error('Thumbnail file not found: ' . $khoaHoc->thumbnail);
@@ -359,6 +359,215 @@ class LearningController extends Controller
                 ])
             ], 201);
         } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Xóa khóa học
+     */
+    public function deleteKhoaHoc($khoaHocId)
+    {
+        try {
+            $khoaHoc = KhoaHoc::where('id', $khoaHocId)
+                              ->where('created_by', Auth::id()) // Chỉ người tạo mới được xóa
+                              ->first();
+
+            if (!$khoaHoc) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy khóa học hoặc bạn không có quyền xóa'
+                ], 404);
+            }
+
+            // Xóa các bài học liên quan
+            BaiHoc::where('id_khoahoc', $khoaHocId)->delete();
+
+            // Xóa các file liên quan
+            if ($khoaHoc->thumbnail) {
+                Storage::disk('public')->delete($khoaHoc->thumbnail);
+            }
+            if ($khoaHoc->image) {
+                Storage::disk('public')->delete($khoaHoc->image);
+            }
+
+            // Xóa khóa học
+            $khoaHoc->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Xóa khóa học thành công'
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error in deleteKhoaHoc: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra khi xóa khóa học',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Xóa bài học
+     */
+    public function deleteBaiHoc($baiHocId)
+    {
+        try {
+            $baiHoc = BaiHoc::with('khoaHoc')->find($baiHocId);
+
+            if (!$baiHoc) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy bài học'
+                ], 404);
+            }
+
+            // Kiểm tra quyền xóa (chỉ người tạo khóa học mới được xóa bài học)
+            if ($baiHoc->khoaHoc->created_by !== Auth::id()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Bạn không có quyền xóa bài học này'
+                ], 403);
+            }
+
+            // Xóa các file liên quan
+            if ($baiHoc->video) {
+                Storage::disk('public')->delete($baiHoc->video);
+            }
+
+            // Xóa tài liệu đính kèm
+            if ($baiHoc->tai_lieu) {
+                $taiLieu = json_decode($baiHoc->tai_lieu, true);
+                foreach ($taiLieu as $file) {
+                    if (isset($file['path'])) {
+                        Storage::disk('public')->delete($file['path']);
+                    }
+                }
+            }
+
+            // Xóa bài học
+            $baiHoc->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Xóa bài học thành công'
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error in deleteBaiHoc: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra khi xóa bài học',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Lưu khóa học yêu thích
+     */
+    public function saveKhoaHoc($khoaHocId)
+    {
+        try {
+            // Kiểm tra khóa học tồn tại
+            $khoaHoc = KhoaHoc::find($khoaHocId);
+            if (!$khoaHoc) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy khóa học'
+                ], 404);
+            }
+
+            // Kiểm tra xem đã lưu chưa
+            $exists = DB::table('saved_courses')
+                ->where('user_id', Auth::id())
+                ->where('khoa_hoc_id', $khoaHocId)
+                ->exists();
+
+            if ($exists) {
+                // Nếu đã lưu thì xóa (unlike)
+                DB::table('saved_courses')
+                    ->where('user_id', Auth::id())
+                    ->where('khoa_hoc_id', $khoaHocId)
+                    ->delete();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Đã bỏ lưu khóa học',
+                    'is_saved' => false
+                ], 200);
+            } else {
+                // Nếu chưa lưu thì thêm mới (like)
+                DB::table('saved_courses')->insert([
+                    'user_id' => Auth::id(),
+                    'khoa_hoc_id' => $khoaHocId,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Đã lưu khóa học',
+                    'is_saved' => true
+                ], 200);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error in saveKhoaHoc: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Lấy danh sách khóa học đã lưu
+     */
+    public function getSavedKhoaHoc()
+    {
+        try {
+            $savedCourses = DB::table('saved_courses as sc')
+                ->join('khoa_hocs as kh', 'sc.khoa_hoc_id', '=', 'kh.id')
+                ->where('sc.user_id', Auth::id())
+                ->where('kh.trang_thai', 'active')
+                ->select('kh.*', 'sc.created_at as saved_at')
+                ->orderBy('sc.created_at', 'desc')
+                ->get()
+                ->map(function ($khoaHoc) {
+                    $thumbnailUrl = null;
+                    if ($khoaHoc->thumbnail) {
+                        if (Storage::disk('public')->exists($khoaHoc->thumbnail)) {
+                            $thumbnailUrl = asset('storage/' . $khoaHoc->thumbnail);
+                        }
+                    }
+
+                    return [
+                        'id' => $khoaHoc->id,
+                        'ten_khoa_hoc' => $khoaHoc->ten_khoa_hoc,
+                        'mo_ta' => $khoaHoc->mo_ta,
+                        'gia' => $khoaHoc->gia,
+                        'thumbnail' => $thumbnailUrl,
+                        'trang_thai' => $khoaHoc->trang_thai,
+                        'created_by' => $khoaHoc->created_by,
+                        'saved_at' => $khoaHoc->saved_at
+                    ];
+                });
+
+            return response()->json([
+                'status' => true,
+                'data' => $savedCourses
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error in getSavedKhoaHoc: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Có lỗi xảy ra',
