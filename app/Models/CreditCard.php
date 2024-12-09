@@ -9,22 +9,15 @@ class CreditCard extends Model
 {
     use HasFactory;
 
+    // Khai báo các trường có thể gán hàng loạt
     protected $fillable = [
         'user_id',
         'card_number',
-        'card_holder_name', 
-        'expiration_month',
-        'expiration_year',
+        'card_holder_name',
         'cvv',
-        'card_type',
-        'is_default',
-        'status'
     ];
 
-    protected $hidden = [
-        'cvv'
-    ];
-
+    // Thiết lập mối quan hệ với User
     public function user()
     {
         return $this->belongsTo(User::class);

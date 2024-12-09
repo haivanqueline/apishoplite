@@ -52,7 +52,8 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         Route::post('/credit-cards/{id}/set-default', [\App\Http\Controllers\Api\CreditCardController::class, 'setDefault']);
         Route::delete('/credit-cards/{id}', [\App\Http\Controllers\Api\CreditCardController::class, 'destroy']);
     });
-    
+    Route::get('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'index']);
+    Route::post('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'store']);
     // Routes cho Feedback
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/feedbacks', [\App\Http\Controllers\Api\FeedbackController::class, 'index']);
