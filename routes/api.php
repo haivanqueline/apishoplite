@@ -43,15 +43,16 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         Route::delete('/delete-lesson/{baiHocId}', [\App\Http\Controllers\Api\LearningController::class, 'deleteBaiHoc']);
         Route::post('/save-course/{khoaHocId}', [\App\Http\Controllers\Api\LearningController::class, 'saveKhoaHoc']);
         Route::get('/saved-courses', [\App\Http\Controllers\Api\LearningController::class, 'getSavedKhoaHoc']);
+        Route::get('/search-courses', [\App\Http\Controllers\Api\LearningController::class, 'searchKhoaHoc']);
     });
     // Route::get('khoahoc', [\App\Http\Controllers\Api\ApiKhoahocController::class, 'index']);  // GET: Lấy danh sách khóa học
     // Route::get('baihoc', [\App\Http\Controllers\Api\ApiBaihocController::class, 'index']);  // GET: Lấy danh sách khóa học
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::get('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'index']);
-        Route::post('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'store']);
-        Route::post('/credit-cards/{id}/set-default', [\App\Http\Controllers\Api\CreditCardController::class, 'setDefault']);
-        Route::delete('/credit-cards/{id}', [\App\Http\Controllers\Api\CreditCardController::class, 'destroy']);
-    });
+    // Route::group(['middleware' => 'auth:api'], function () {
+    //     Route::get('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'index']);
+    //     Route::post('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'store']);
+    //     Route::post('/credit-cards/{id}/set-default', [\App\Http\Controllers\Api\CreditCardController::class, 'setDefault']);
+    //     Route::delete('/credit-cards/{id}', [\App\Http\Controllers\Api\CreditCardController::class, 'destroy']);
+    // });
     Route::get('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'index']);
     Route::post('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'store']);
     // Routes cho Feedback

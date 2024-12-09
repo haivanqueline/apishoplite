@@ -27,20 +27,14 @@ class LearningController extends Controller
     public function getMyKhoaHoc()
     {
         try {
-            $khoaHocs = KhoaHoc::where('trang_thai', 'active')
+            $khoaHocs = KhoaHoc::with('creator')
+                ->where('trang_thai', 'active')
                 ->get()
                 ->map(function ($khoaHoc) {
-                    // Debug: In ra đường dẫn gốc của thumbnail
-                    Log::info('Original thumbnail path: ' . $khoaHoc->thumbnail);
-                    
                     $thumbnailUrl = null;
                     if ($khoaHoc->thumbnail) {
-                        // Kiểm tra file có tồn tại không
                         if (Storage::disk('public')->exists($khoaHoc->thumbnail)) {
                             $thumbnailUrl = asset('storage/' . $khoaHoc->thumbnail);
-                            Log::info('Generated thumbnail URL: ' . $thumbnailUrl);
-                        } else {
-                            Log::error('Thumbnail file not found: ' . $khoaHoc->thumbnail);
                         }
                     }
 
@@ -52,6 +46,7 @@ class LearningController extends Controller
                         'thumbnail' => $thumbnailUrl,
                         'trang_thai' => $khoaHoc->trang_thai,
                         'created_by' => $khoaHoc->created_by,
+                        'created_by_name' => $khoaHoc->creator ? $khoaHoc->creator->full_name : null,
                         'created_at' => $khoaHoc->created_at,
                         'updated_at' => $khoaHoc->updated_at,
                     ];
@@ -568,6 +563,99 @@ class LearningController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error in getSavedKhoaHoc: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Tìm kiếm khóa học
+     */
+    public function searchKhoaHoc(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'keyword' => 'nullable|string',
+                'min_price' => 'nullable|numeric|min:0',
+                'max_price' => 'nullable|numeric|min:0',
+                'sort_by' => 'nullable|in:price_asc,price_desc,newest,oldest'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $query = KhoaHoc::where('trang_thai', 'active');
+
+            // Tìm theo từ khóa
+            if ($request->has('keyword')) {
+                $keyword = $request->keyword;
+                $query->where(function($q) use ($keyword) {
+                    $q->where('ten_khoa_hoc', 'like', "%{$keyword}%")
+                      ->orWhere('mo_ta', 'like', "%{$keyword}%");
+                });
+            }
+
+            // Lọc theo khoảng giá
+            if ($request->has('min_price')) {
+                $query->where('gia', '>=', $request->min_price);
+            }
+            if ($request->has('max_price')) {
+                $query->where('gia', '<=', $request->max_price);
+            }
+
+            // Sắp xếp
+            switch ($request->sort_by) {
+                case 'price_asc':
+                    $query->orderBy('gia', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('gia', 'desc');
+                    break;
+                case 'newest':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'oldest':
+                    $query->orderBy('created_at', 'asc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc');
+            }
+
+            $khoaHocs = $query->get()->map(function ($khoaHoc) {
+                $thumbnailUrl = null;
+                if ($khoaHoc->thumbnail) {
+                    if (Storage::disk('public')->exists($khoaHoc->thumbnail)) {
+                        $thumbnailUrl = asset('storage/' . $khoaHoc->thumbnail);
+                    }
+                }
+
+                return [
+                    'id' => $khoaHoc->id,
+                    'ten_khoa_hoc' => $khoaHoc->ten_khoa_hoc,
+                    'mo_ta' => $khoaHoc->mo_ta,
+                    'gia' => $khoaHoc->gia,
+                    'thumbnail' => $thumbnailUrl,
+                    'trang_thai' => $khoaHoc->trang_thai,
+                    'created_by' => $khoaHoc->created_by,
+                    'created_at' => $khoaHoc->created_at,
+                    'updated_at' => $khoaHoc->updated_at,
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'data' => $khoaHocs
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error in searchKhoaHoc: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Có lỗi xảy ra',
