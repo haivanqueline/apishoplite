@@ -15,6 +15,8 @@ class CreditCard extends Model
         'card_number',
         'card_holder_name',
         'cvv',
+        'expiration_month',
+        'expiration_year'
     ];
 
     // Thiết lập mối quan hệ với User

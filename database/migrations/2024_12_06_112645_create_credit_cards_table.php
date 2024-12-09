@@ -19,6 +19,8 @@ class CreateCreditCardsTable extends Migration
             $table->string('card_number'); // Số thẻ
             $table->string('card_holder_name'); // Tên chủ thẻ
             $table->string('cvv'); // Mã CVV
+            $table->string('expiration_month'); // Thêm trường này
+            $table->string('expiration_year');  // Thêm trường này
             $table->timestamps();
         });
     }

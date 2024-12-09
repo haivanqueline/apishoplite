@@ -45,16 +45,7 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         Route::get('/saved-courses', [\App\Http\Controllers\Api\LearningController::class, 'getSavedKhoaHoc']);
         Route::get('/search-courses', [\App\Http\Controllers\Api\LearningController::class, 'searchKhoaHoc']);
     });
-    // Route::get('khoahoc', [\App\Http\Controllers\Api\ApiKhoahocController::class, 'index']);  // GET: Lấy danh sách khóa học
-    // Route::get('baihoc', [\App\Http\Controllers\Api\ApiBaihocController::class, 'index']);  // GET: Lấy danh sách khóa học
-    // Route::group(['middleware' => 'auth:api'], function () {
-    //     Route::get('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'index']);
-    //     Route::post('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'store']);
-    //     Route::post('/credit-cards/{id}/set-default', [\App\Http\Controllers\Api\CreditCardController::class, 'setDefault']);
-    //     Route::delete('/credit-cards/{id}', [\App\Http\Controllers\Api\CreditCardController::class, 'destroy']);
-    // });
-    Route::get('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'index']);
-    Route::post('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'store']);
+    
     // Routes cho Feedback
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/feedbacks', [\App\Http\Controllers\Api\FeedbackController::class, 'index']);
@@ -62,6 +53,13 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         Route::get('/feedbacks/{feedback}', [\App\Http\Controllers\Api\FeedbackController::class, 'show']);
         Route::patch('/feedbacks/{feedback}/status', [\App\Http\Controllers\Api\FeedbackController::class, 'updateStatus']);
         Route::delete('/feedbacks/{feedback}', [\App\Http\Controllers\Api\FeedbackController::class, 'destroy']);
+    });
+
+    // Routes cho Credit Card
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::get('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'index']);
+        Route::post('/credit-cards', [\App\Http\Controllers\Api\CreditCardController::class, 'store']);
+        Route::delete('/credit-cards/{id}', [\App\Http\Controllers\Api\CreditCardController::class, 'destroy']);
     });
 });
   use App\Http\Controllers\Api\ApiLecturerController;

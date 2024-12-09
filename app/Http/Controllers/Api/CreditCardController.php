@@ -27,15 +27,12 @@ class CreditCardController extends Controller
             'card_number' => 'required|string|max:16',
             'card_holder_name' => 'required|string|max:255',
             'cvv' => 'required|string|max:3',
+            'expiration_month' => 'required|string|max:2',
+            'expiration_year' => 'required|string|max:4',
         ]);
 
         // Tạo thẻ tín dụng mới
-        $creditCard = CreditCard::create([
-            'user_id' => $validated['user_id'],
-            'card_number' => $validated['card_number'],
-            'card_holder_name' => $validated['card_holder_name'],
-            'cvv' => $validated['cvv'],
-        ]);
+        $creditCard = CreditCard::create($validated);
 
         // Trả về thông tin thẻ tín dụng vừa tạo dưới dạng JSON
         return response()->json($creditCard, 201);
