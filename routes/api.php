@@ -53,7 +53,15 @@ Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
         Route::delete('/credit-cards/{id}', [\App\Http\Controllers\Api\CreditCardController::class, 'destroy']);
     });
     
-  });
+    // Routes cho Feedback
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::get('/feedbacks', [\App\Http\Controllers\Api\FeedbackController::class, 'index']);
+        Route::post('/feedbacks', [\App\Http\Controllers\Api\FeedbackController::class, 'store']);
+        Route::get('/feedbacks/{feedback}', [\App\Http\Controllers\Api\FeedbackController::class, 'show']);
+        Route::patch('/feedbacks/{feedback}/status', [\App\Http\Controllers\Api\FeedbackController::class, 'updateStatus']);
+        Route::delete('/feedbacks/{feedback}', [\App\Http\Controllers\Api\FeedbackController::class, 'destroy']);
+    });
+});
   use App\Http\Controllers\Api\ApiLecturerController;
 
   Route::prefix('v1')->group(function () {
